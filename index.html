@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UPP 017 — Cronología del Gasto | Servicios de Salud de Michoacán</title>
+<style>
+  :root {
+    --guinda:    #911A3A;
+    --guinda-dk: #6B1229;
+    --guinda-lt: #B5264D;
+    --dorado:    #BD9868;
+    --dorado-lt: #D4B896;
+    --rosa:      #F9E8ED;
+    --rosa-md:   #F0C8D4;
+    --blanco:    #FFFFFF;
+    --gris-lt:   #F7F7F7;
+    --gris:      #555555;
+    --gris-dk:   #222222;
+    --verde:     #1B6B3A;
+    --rojo:      #C0392B;
+    --amarillo:  #8a6200;
+    --sombra:    0 2px 16px rgba(145,26,58,.10);
+    --sombra-md: 0 4px 24px rgba(145,26,58,.15);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #F5F5F5; color: var(--gris-dk); }
+
+  /* ══ BARRA SUPERIOR GOB ══ */
+  .topbar {
+    background: var(--guinda); color: #fff;
+    padding: .3rem 2rem; font-size: .72rem; letter-spacing: .3px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .topbar span { opacity: .85; }
+
+  /* ══ HEADER / NAV ══ */
+  header {
+    background: var(--blanco);
+    border-bottom: 3px solid var(--guinda);
+    box-shadow: 0 2px 8px rgba(0,0,0,.08);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .header-inner {
+    max-width: 1140px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: .6rem 1.5rem; gap: 1rem;
+  }
+  .logo-block { display: flex; align-items: center; gap: .9rem; text-decoration: none; }
+  .logo-block img.logo-ssm { height: 56px; }
+  .logo-block img.logo-mich { height: 52px; filter: none; }
+  .logo-sep { width: 1px; height: 48px; background: #ddd; }
+  .logo-text { line-height: 1.2; }
+  .logo-text .lt-dep  { font-size: .95rem; font-weight: 800; color: var(--guinda); }
+  .logo-text .lt-gov  { font-size: .68rem; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: .5px; }
+
+  nav ul { list-style: none; display: flex; gap: .2rem; flex-wrap: wrap; }
+  nav ul li a {
+    color: var(--guinda); text-decoration: none; font-size: .78rem; font-weight: 700;
+    padding: .45rem .85rem; border-radius: 4px; transition: background .2s, color .2s;
+    letter-spacing: .2px;
+  }
+  nav ul li a:hover  { background: var(--rosa); }
+  nav ul li a.active { background: var(--guinda); color: #fff; }
+  nav ul li a.dorado { background: var(--dorado); color: var(--guinda); }
+  nav ul li a.dorado:hover { background: var(--dorado-lt); }
+
+  /* ══ HERO ══ */
+  .hero {
+    background: linear-gradient(135deg, var(--guinda-dk) 0%, var(--guinda) 55%, var(--guinda-lt) 100%);
+    color: #fff; padding: 3rem 1.5rem 4.5rem; text-align: center;
+  }
+  .hero-logos { display: flex; align-items: center; justify-content: center; gap: 1.2rem; margin-bottom: 1.2rem; }
+  .hero-logos img { height: 56px; filter: brightness(0) invert(1); }
+  .hero-logos .hl-sep { width: 1px; height: 48px; background: rgba(255,255,255,.4); }
+  .hero h1 { font-size: 1.9rem; font-weight: 900; margin-bottom: .5rem; line-height: 1.15; }
+  .hero h1 span { color: var(--dorado-lt); }
+  .hero p  { font-size: .95rem; opacity: .88; max-width: 680px; margin: 0 auto 1.5rem; line-height: 1.55; }
+  .badge {
+    display: inline-block; border: 1px solid rgba(255,255,255,.45);
+    background: rgba(255,255,255,.12); color: #fff;
+    font-size: .72rem; font-weight: 700; padding: .28rem .85rem;
+    border-radius: 20px; margin: .2rem; letter-spacing: .4px;
+  }
+  .badge.dorado { background: var(--dorado); color: var(--guinda-dk); border-color: var(--dorado); }
+
+  /* ══ KPI CARDS ══ */
+  .kpi-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(195px, 1fr));
+    gap: 1rem; max-width: 1140px; margin: -2.5rem auto 0; padding: 0 1.5rem;
+  }
+  .kpi {
+    background: var(--blanco); border-radius: 10px; padding: 1.3rem 1.2rem;
+    box-shadow: var(--sombra); border-top: 5px solid var(--guinda);
+    transition: transform .2s, box-shadow .2s;
+  }
+  .kpi:hover { transform: translateY(-4px); box-shadow: var(--sombra-md); }
+  .kpi.rojo   { border-top-color: var(--rojo); }
+  .kpi.verde  { border-top-color: var(--verde); }
+  .kpi.dorado { border-top-color: var(--dorado); }
+  .kpi .label { font-size: .68rem; font-weight: 700; text-transform: uppercase;
+                 letter-spacing: .7px; color: #888; margin-bottom: .4rem; }
+  .kpi .valor { font-size: 1.65rem; font-weight: 900; line-height: 1; color: var(--guinda); }
+  .kpi.rojo  .valor { color: var(--rojo); }
+  .kpi.verde .valor { color: var(--verde); }
+  .kpi.dorado .valor { color: var(--amarillo); }
+  .kpi .sub { font-size: .71rem; color: #888; margin-top: .3rem; line-height: 1.4; }
+
+  /* ══ SECTIONS ══ */
+  section { max-width: 1140px; margin: 2.5rem auto; padding: 0 1.5rem; }
+  .section-title {
+    font-size: 1.15rem; font-weight: 900; color: var(--guinda);
+    border-left: 5px solid var(--dorado); padding-left: .8rem;
+    margin-bottom: 1.2rem;
+  }
+  .section-title small { font-size: .73rem; color: #888; font-weight: 400; display: block; margin-top: .15rem; }
+
+  /* ══ TABS ══ */
+  .tabs { display: flex; gap: .35rem; margin-bottom: 1.2rem; flex-wrap: wrap; }
+  .tab-btn {
+    padding: .48rem 1.1rem; border: 2px solid var(--rosa-md); border-radius: 6px;
+    font-size: .8rem; font-weight: 700; cursor: pointer;
+    background: var(--blanco); color: var(--guinda); transition: all .2s;
+  }
+  .tab-btn:hover { background: var(--rosa); }
+  .tab-btn.active { background: var(--guinda); color: #fff; border-color: var(--guinda); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* ══ TIMELINE ══ */
+  .timeline { position: relative; padding-left: 2rem; }
+  .timeline::before {
+    content: ''; position: absolute; left: .55rem; top: 0; bottom: 0;
+    width: 3px; background: linear-gradient(to bottom, var(--guinda), var(--dorado));
+    border-radius: 3px;
+  }
+  .tl-item { position: relative; margin-bottom: 1.3rem; }
+  .tl-item::before {
+    content: ''; position: absolute; left: -1.65rem; top: .3rem;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--guinda); border: 3px solid var(--blanco);
+    box-shadow: 0 0 0 2px var(--guinda);
+  }
+  .tl-item.verde::before  { background: var(--verde);    box-shadow: 0 0 0 2px var(--verde); }
+  .tl-item.rojo::before   { background: var(--rojo);     box-shadow: 0 0 0 2px var(--rojo); }
+  .tl-item.dorado::before { background: var(--dorado);   box-shadow: 0 0 0 2px var(--dorado); }
+  .tl-card {
+    background: var(--blanco); border-radius: 10px; padding: 1rem 1.2rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,.07); cursor: pointer;
+    border-left: 4px solid var(--guinda);
+    transition: box-shadow .2s, transform .2s;
+  }
+  .tl-card:hover { box-shadow: var(--sombra-md); transform: translateX(4px); }
+  .tl-card.verde  { border-left-color: var(--verde); }
+  .tl-card.rojo   { border-left-color: var(--rojo); }
+  .tl-card.dorado { border-left-color: var(--dorado); }
+  .tl-date  { font-size: .7rem; font-weight: 800; color: var(--guinda); text-transform: uppercase; letter-spacing: .4px; }
+  .tl-card.rojo  .tl-date  { color: var(--rojo); }
+  .tl-card.verde .tl-date  { color: var(--verde); }
+  .tl-card.dorado .tl-date { color: var(--amarillo); }
+  .tl-title { font-size: .93rem; font-weight: 800; margin: .2rem 0; color: var(--gris-dk); }
+  .tl-body  { font-size: .82rem; color: #555; margin-top: .4rem; display: none; line-height: 1.6; }
+  .tl-monto {
+    display: inline-block; font-size: .76rem; font-weight: 800;
+    padding: .15rem .75rem; border-radius: 20px; margin-top: .4rem;
+    background: var(--rosa); color: var(--guinda);
+  }
+  .tl-monto.rojo   { background: #fdecea; color: var(--rojo); }
+  .tl-monto.verde  { background: #e6f4ea; color: var(--verde); }
+  .tl-monto.dorado { background: #fef3e0; color: var(--amarillo); }
+
+  /* ══ DEUDA CARDS ══ */
+  .deuda-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(278px, 1fr)); gap: 1rem; }
+  .deuda-card {
+    background: var(--blanco); border-radius: 12px; padding: 1.3rem;
+    box-shadow: var(--sombra); border-left: 6px solid var(--rojo);
+  }
+  .deuda-card.verde  { border-left-color: var(--verde); }
+  .deuda-card.dorado { border-left-color: var(--dorado); }
+  .deuda-card .dc-label { font-size: .7rem; font-weight: 700; text-transform: uppercase;
+                           letter-spacing: .6px; color: #888; margin-bottom: .4rem; }
+  .deuda-card .dc-monto { font-size: 1.85rem; font-weight: 900; }
+  .deuda-card .dc-sub   { font-size: .77rem; color: #666; margin-top: .2rem; line-height: 1.45; }
+  .deuda-card .dc-detail { margin-top: .8rem; }
+  .deuda-card .dc-row {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: .8rem; padding: .3rem 0; border-bottom: 1px solid #f2f2f2;
+  }
+  .deuda-card .dc-row:last-child { border-bottom: none; }
+  .dc-row .dc-f { font-weight: 600; color: #555; }
+  .dc-row .dc-v { font-weight: 800; color: var(--rojo); }
+  .deuda-card.verde  .dc-row .dc-v { color: var(--verde); }
+  .deuda-card.dorado .dc-row .dc-v { color: var(--amarillo); }
+
+  /* ══ TABLAS ══ */
+  .tabla-wrap { overflow-x: auto; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,.07); }
+  table { width: 100%; border-collapse: collapse; background: var(--blanco); font-size: .83rem; }
+  thead th {
+    background: var(--guinda); color: #fff; padding: .75rem 1rem;
+    text-align: left; font-size: .73rem; text-transform: uppercase; letter-spacing: .4px;
+  }
+  tbody tr { border-bottom: 1px solid #f0f0f0; transition: background .15s; }
+  tbody tr:hover { background: var(--rosa); }
+  tbody td { padding: .7rem 1rem; }
+  tbody td.monto { font-weight: 700; text-align: right; }
+  .tag {
+    display: inline-block; font-size: .69rem; font-weight: 800;
+    padding: .15rem .65rem; border-radius: 10px;
+  }
+  .tag.reg  { background: #e6f4ea; color: #1B6B3A; }
+  .tag.pen  { background: #fdecea; color: #C0392B; }
+  .tag.proc { background: #fef3e0; color: #8a6200; }
+
+  /* ══ BARRAS ══ */
+  .bar-section { background: var(--blanco); border-radius: 12px; padding: 1.6rem; box-shadow: var(--sombra); }
+  .bar-row { margin-bottom: 1.1rem; }
+  .bar-label { display: flex; justify-content: space-between; font-size: .82rem; margin-bottom: .3rem; }
+  .bar-label .bl-n { font-weight: 600; color: var(--gris-dk); }
+  .bar-label .bl-v { font-weight: 900; color: var(--guinda); }
+  .bar-track { background: #ede8ea; border-radius: 6px; height: 15px; overflow: hidden; }
+  .bar-fill  { height: 100%; border-radius: 6px; transition: width 1.2s ease; }
+
+  /* ══ FLUJO ══ */
+  .flujo-wrap { display: flex; justify-content: center; align-items: flex-start; flex-wrap: wrap; gap: 1rem; }
+  .flujo-card {
+    background: var(--blanco); border-radius: 12px; padding: 1.2rem 1.4rem;
+    box-shadow: var(--sombra); text-align: center;
+    flex: 1 1 155px; max-width: 210px;
+    border-top: 4px solid var(--guinda);
+  }
+  .flujo-card .fc-icon  { font-size: 2rem; margin-bottom: .5rem; }
+  .flujo-card .fc-label { font-size: .71rem; font-weight: 700; text-transform: uppercase;
+                           letter-spacing: .5px; color: #888; }
+  .flujo-card .fc-val   { font-size: 1.25rem; font-weight: 900; margin-top: .3rem; color: var(--guinda); }
+  .flujo-arrow { font-size: 1.5rem; color: var(--guinda); align-self: center; opacity: .5; }
+
+  /* ══ RESUMEN TOTAL ══ */
+  .total-box {
+    background: linear-gradient(135deg, var(--guinda-dk), var(--guinda));
+    color: #fff; border-radius: 14px; padding: 2rem 2.5rem;
+    display: flex; flex-wrap: wrap; gap: 2rem; align-items: center;
+    justify-content: space-between; box-shadow: var(--sombra-md);
+    margin-top: 1.5rem;
+  }
+  .total-box .tb-item { text-align: center; min-width: 140px; }
+  .total-box .tb-label { font-size: .72rem; font-weight: 700; opacity: .75; text-transform: uppercase; letter-spacing: .5px; }
+  .total-box .tb-val   { font-size: 2rem; font-weight: 900; color: var(--dorado-lt); margin: .2rem 0; }
+  .total-box .tb-sub   { font-size: .73rem; opacity: .7; }
+  .total-box .tb-div   { width: 1px; height: 60px; background: rgba(255,255,255,.25); }
+
+  /* ══ FOOTER ══ */
+  footer {
+    background: var(--guinda-dk); color: rgba(255,255,255,.7);
+    padding: 1.8rem 2rem; margin-top: 3rem;
+  }
+  .footer-inner {
+    max-width: 1140px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 1rem;
+  }
+  .footer-inner img { height: 36px; filter: brightness(0) invert(.7); }
+  .footer-inner .ft-text { font-size: .73rem; line-height: 1.6; }
+  .footer-inner .ft-text strong { color: #fff; }
+
+  /* ══ RESPONSIVE ══ */
+  @media (max-width: 700px) {
+    .hero h1 { font-size: 1.35rem; }
+    .header-inner { flex-wrap: wrap; }
+    nav { display: none; }
+    .kpi .valor { font-size: 1.35rem; }
+    .flujo-arrow { display: none; }
+    .total-box .tb-div { display: none; }
+    .total-box { justify-content: center; }
+    .hero-logos img { height: 40px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ BARRA SUPERIOR ══ -->
+<div class="topbar">
+  <span>Gobierno del Estado de Michoacán de Ocampo</span>
+  <span>Corte: 23 de Abril de 2026</span>
+</div>
+
+<!-- ══ HEADER ══ -->
+<header>
+  <div class="header-inner">
+    <a class="logo-block" href="#">
+      <img class="logo-ssm"
+           src="https://michoacan.gob.mx/cdn/img/logos/dependencias/finanzas.svg"
+           alt="Secretaría de Finanzas y Administración"
+           onerror="this.style.display='none'">
+      <div class="logo-sep"></div>
+      <div class="logo-text">
+        <div class="lt-dep">Servicios de Salud de Michoacán</div>
+        <div class="lt-gov">Gobierno del Estado de Michoacán · UPP 017</div>
+      </div>
+    </a>
+    <nav>
+      <ul>
+        <li><a href="#resumen"    onclick="scrollTo('resumen')"    class="active">Resumen</a></li>
+        <li><a href="#adeudos"    onclick="scrollTo('adeudos')">Adeudos</a></li>
+        <li><a href="#cronologia" onclick="scrollTo('cronologia')">Cronología</a></li>
+        <li><a href="#quincenas"  onclick="scrollTo('quincenas')">Quincenas</a></li>
+        <li><a href="#presupuesto" onclick="scrollTo('presupuesto')">Presupuesto</a></li>
+        <li><a href="#flujo"      onclick="scrollTo('flujo')">Flujo</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<!-- ══ HERO ══ -->
+<div class="hero">
+  <div class="hero-logos">
+    <img src="https://michoacan.gob.mx/cdn/img/logos/dependencias/finanzas.svg"
+         alt="Secretaría de Finanzas" onerror="this.style.display='none'">
+    <div class="hl-sep"></div>
+    <img src="https://michoacan.gob.mx/images/logo-gris.png"
+         alt="Michoacán es Mejor" onerror="this.style.display='none'">
+  </div>
+  <h1>UPP <span>017</span> — Servicios de Salud de Michoacán</h1>
+  <p>Cronología del gasto, provisionales y adeudos del ejercicio 2025–2026<br>Gobierno del Estado de Michoacán de Ocampo</p>
+  <span class="badge dorado">Corte: 23 Abril 2026</span>
+  <span class="badge">Fondo 09</span>
+  <span class="badge">Fondo 02</span>
+  <span class="badge">IMSS Bienestar</span>
+</div>
+
+<!-- ══ KPI CARDS ══ -->
+<div class="kpi-grid" id="resumen">
+  <div class="kpi rojo">
+    <div class="label">Total Adeudos Identificados</div>
+    <div class="valor">$779.2 M</div>
+    <div class="sub">MDP acumulados 2025–2026</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Presupuesto Original 2026</div>
+    <div class="valor">$8,468 M</div>
+    <div class="sub">Modificado: $8,450.6 MDP</div>
+  </div>
+  <div class="kpi dorado">
+    <div class="label">Provisionales 2025</div>
+    <div class="valor">$271.4 M</div>
+    <div class="sub">Fondo 09: $172.9 M · Fondo 02: $98.4 M</div>
+  </div>
+  <div class="kpi dorado">
+    <div class="label">Provisionales 2026</div>
+    <div class="valor">$107.8 M</div>
+    <div class="sub">Fondo 02 — pendiente</div>
+  </div>
+  <div class="kpi rojo">
+    <div class="label">Adeudos con Proveedores 2025</div>
+    <div class="valor">~$400 M</div>
+    <div class="sub">Reportado por la UPP 017</div>
+  </div>
+  <div class="kpi verde">
+    <div class="label">Regularizados Q1–Q4 2026</div>
+    <div class="valor">$225.9 M</div>
+    <div class="sub">Servicios Personales — 100%</div>
+  </div>
+</div>
+
+<!-- ══ ADEUDOS ══ -->
+<section id="adeudos">
+  <div class="section-title">Desglose de Adeudos y Obligaciones
+    <small>Estado actual de las obligaciones de la UPP 017 al corte del 23 de abril de 2026</small>
+  </div>
+  <div class="deuda-grid">
+
+    <div class="deuda-card">
+      <div class="dc-label">Provisionales Pendientes — 2025</div>
+      <div class="dc-monto" style="color:var(--rojo)">$271.4 MDP</div>
+      <div class="dc-sub">Pendientes de regularizar al cierre del ejercicio 2025</div>
+      <div class="dc-detail">
+        <div class="dc-row"><span class="dc-f">Fondo 09</span><span class="dc-v">$172.9 MDP</span></div>
+        <div class="dc-row"><span class="dc-f">Fondo 02</span><span class="dc-v">$98.4 MDP</span></div>
+      </div>
+    </div>
+
+    <div class="deuda-card">
+      <div class="dc-label">Adeudos con Proveedores — 2025</div>
+      <div class="dc-monto" style="color:var(--rojo)">~$400 MDP</div>
+      <div class="dc-sub">Reportado por la UPP. Compromisos con terceros sin liquidar.</div>
+      <div class="dc-detail">
+        <div class="dc-row"><span class="dc-f">Estado</span><span class="dc-v">Pendiente de pago</span></div>
+        <div class="dc-row"><span class="dc-f">Fuente</span><span class="dc-v">Reporte UPP 017</span></div>
+      </div>
+    </div>
+
+    <div class="deuda-card dorado">
+      <div class="dc-label">Provisionales Pendientes — 2026</div>
+      <div class="dc-monto" style="color:var(--amarillo)">$107.8 MDP</div>
+      <div class="dc-sub">Fondo 02 · Ejercicio en curso</div>
+      <div class="dc-detail">
+        <div class="dc-row"><span class="dc-f">Fondo 02</span><span class="dc-v">$107.8 MDP</span></div>
+        <div class="dc-row"><span class="dc-f">Estado</span><span class="dc-v">En proceso</span></div>
+      </div>
+    </div>
+
+    <div class="deuda-card verde">
+      <div class="dc-label">Quincenas Regularizadas — 2026</div>
+      <div class="dc-monto" style="color:var(--verde)">$225.9 MDP</div>
+      <div class="dc-sub">Servicios Personales Q1–Q4. Totalmente regularizado.</div>
+      <div class="dc-detail">
+        <div class="dc-row"><span class="dc-f">S0078 · 19 Ene</span><span class="dc-v">$54.4 MDP</span></div>
+        <div class="dc-row"><span class="dc-f">S0155 · 29 Ene</span><span class="dc-v">$54.0 MDP</span></div>
+        <div class="dc-row"><span class="dc-f">S0191 · 13 Feb</span><span class="dc-v">$54.0 MDP</span></div>
+        <div class="dc-row"><span class="dc-f">S0222 · 27 Feb</span><span class="dc-v">$63.5 MDP</span></div>
+      </div>
+    </div>
+
+    <div class="deuda-card dorado">
+      <div class="dc-label">Recurso Ambulancias 2026</div>
+      <div class="dc-monto" style="color:var(--amarillo)">$180 MDP</div>
+      <div class="dc-sub">$178 MDP aplicados temporalmente a nómina. Regularizado mediante DEPPs en marzo 2026.</div>
+      <div class="dc-detail">
+        <div class="dc-row"><span class="dc-f">DEPP 155 · 18 Mar</span><span class="dc-v">$42.5 MDP</span></div>
+        <div class="dc-row"><span class="dc-f">DEPP 156 · 18 Mar</span><span class="dc-v">$42.0 MDP</span></div>
+        <div class="dc-row"><span class="dc-f">DEPP 157 · 18 Mar</span><span class="dc-v">$42.1 MDP</span></div>
+        <div class="dc-row"><span class="dc-f">DEPP 158 · 18 Mar</span><span class="dc-v">$51.5 MDP</span></div>
+        <div class="dc-row"><span class="dc-f">Total regularizado</span><span class="dc-v">$178.1 MDP</span></div>
+      </div>
+    </div>
+
+    <div class="deuda-card verde">
+      <div class="dc-label">Hospital Arantepacua — Recurso Federal</div>
+      <div class="dc-monto" style="color:var(--verde)">$120 MDP</div>
+      <div class="dc-sub">Recurso federal ministrado y ampliado. Pago en trámite desde abril 2026.</div>
+      <div class="dc-detail">
+        <div class="dc-row"><span class="dc-f">Mes de ministración</span><span class="dc-v">Abril 2026</span></div>
+        <div class="dc-row"><span class="dc-f">Estado</span><span class="dc-v">En trámite de pago</span></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══ CRONOLOGÍA ══ -->
+<section id="cronologia">
+  <div class="section-title">Cronología del Gasto 2025–2026
+    <small>Haz clic en cada evento para expandir el detalle completo</small>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('tab-todo',this)">Todos los eventos</button>
+    <button class="tab-btn" onclick="showTab('tab-2025',this)">2025</button>
+    <button class="tab-btn" onclick="showTab('tab-2026',this)">2026</button>
+    <button class="tab-btn" onclick="showTab('tab-pend',this)">Pendientes</button>
+  </div>
+
+  <!-- TODOS -->
+  <div id="tab-todo" class="tab-content active">
+    <div class="timeline">
+
+      <div class="tl-item rojo">
+        <div class="tl-card rojo" onclick="toggleDetail(this)">
+          <div class="tl-date">2025 · Cierre de ejercicio</div>
+          <div class="tl-title">Acumulación de Provisionales — Fondo 09 y Fondo 02</div>
+          <span class="tl-monto rojo">$271.4 MDP pendientes</span>
+          <div class="tl-body">Al cierre del ejercicio 2025, la UPP 017 acumuló provisionales sin regularizar por <strong>$271.4 MDP</strong>. De estos, <strong>$172.9 MDP corresponden al Fondo 09</strong> (aportaciones federales para salud) y <strong>$98.4 MDP al Fondo 02</strong>. Representan pagos anticipados de nómina que no contaban con el recurso presupuestal debidamente afectado al cierre del año.</div>
+        </div>
+      </div>
+
+      <div class="tl-item rojo">
+        <div class="tl-card rojo" onclick="toggleDetail(this)">
+          <div class="tl-date">2025 · Ejercicio fiscal</div>
+          <div class="tl-title">Adeudos con Proveedores reportados por UPP</div>
+          <span class="tl-monto rojo">~$400 MDP adeudados</span>
+          <div class="tl-body">La UPP 017 reportó adeudos con proveedores por aproximadamente <strong>$400 MDP</strong> generados durante 2025. Estos compromisos con terceros permanecen pendientes de liquidación y representan la obligación más cuantiosa del período, impactando directamente la programación del ejercicio 2026.</div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-card" onclick="toggleDetail(this)">
+          <div class="tl-date">01 Enero 2026 · Apertura del ejercicio</div>
+          <div class="tl-title">Asignación presupuestal — Recurso Ambulancias ($180 MDP)</div>
+          <span class="tl-monto">Posición 421051 — Fondo 02</span>
+          <div class="tl-body">Al inicio del ejercicio 2026 se asignaron <strong>$180 MDP</strong> en la posición presupuestaria <strong>421051</strong> destinados a la adquisición de ambulancias. Ante la urgencia de cubrir nómina de quincenas 01–04, este recurso fue transferido temporalmente. La UPP justificó el movimiento señalando que los provisionales son operaciones financieras (no presupuestales) y que el recurso sería repuesto al recibirse la ministración federal de IMSS Bienestar.</div>
+        </div>
+      </div>
+
+      <div class="tl-item verde">
+        <div class="tl-card verde" onclick="toggleDetail(this)">
+          <div class="tl-date">19 Enero 2026 · Quincena 01</div>
+          <div class="tl-title">Provisional S0078 — Servicios Personales Q1</div>
+          <span class="tl-monto verde">$54,413,673.67 — REGULARIZADO</span>
+          <div class="tl-body">Primera quincena del ejercicio 2026. Folio <strong>S0078</strong> por <strong>$54.4 MDP</strong> para cubrir nómina de Servicios Personales. Regularizado íntegramente el mismo 19 de enero. Fondo: 261101021. Saldo final: $0.00.</div>
+        </div>
+      </div>
+
+      <div class="tl-item verde">
+        <div class="tl-card verde" onclick="toggleDetail(this)">
+          <div class="tl-date">29 Enero 2026 · Quincena 02</div>
+          <div class="tl-title">Provisional S0155 — Servicios Personales Q2</div>
+          <span class="tl-monto verde">$53,974,072.99 — REGULARIZADO</span>
+          <div class="tl-body">Segunda quincena. Folio <strong>S0155</strong> por <strong>$54.0 MDP</strong>. Regularizado el 29 de enero de 2026. Saldo final: $0.00. Fondo: 261101021.</div>
+        </div>
+      </div>
+
+      <div class="tl-item verde">
+        <div class="tl-card verde" onclick="toggleDetail(this)">
+          <div class="tl-date">13 Febrero 2026 · Quincena 03</div>
+          <div class="tl-title">Provisional S0191 — Servicios Personales Q3</div>
+          <span class="tl-monto verde">$54,044,529.09 — REGULARIZADO</span>
+          <div class="tl-body">Tercera quincena. Folio <strong>S0191</strong> por <strong>$54.0 MDP</strong>. Regularizado el 13 de febrero de 2026. Saldo final: $0.00. Fondo: 261101021.</div>
+        </div>
+      </div>
+
+      <div class="tl-item verde">
+        <div class="tl-card verde" onclick="toggleDetail(this)">
+          <div class="tl-date">27 Febrero 2026 · Quincena 04</div>
+          <div class="tl-title">Provisional S0222 — Servicios Personales Q4</div>
+          <span class="tl-monto verde">$63,461,624.13 — REGULARIZADO</span>
+          <div class="tl-body">Cuarta quincena y la de mayor monto. Folio <strong>S0222</strong> por <strong>$63.5 MDP</strong>. Regularizado el 27 de febrero. Con esta operación se completó la regularización de las quincenas Q1–Q4 por <strong>$225.9 MDP acumulados</strong>. Fondo: 261101021.</div>
+        </div>
+      </div>
+
+      <div class="tl-item dorado">
+        <div class="tl-card dorado" onclick="toggleDetail(this)">
+          <div class="tl-date">18 Marzo 2026 · Regularización</div>
+          <div class="tl-title">Emisión de 4 DEPPs — Regularización del recurso de ambulancias</div>
+          <span class="tl-monto dorado">$178,084,759.88 regularizados</span>
+          <div class="tl-body">El 18 de marzo de 2026 se emitieron cuatro <strong>Documentos de Ejecución Presupuestaria y Pago (DEPP)</strong>, folios 0170000000155 al 0170000000158, para regularizar el recurso de ambulancias aplicado temporalmente a nómina. Montos: $42.5 + $42.0 + $42.1 + $51.5 MDP = <strong>$178.1 MDP</strong>. El remanente de $1.9 MDP fue regularizado en abril 2026.</div>
+        </div>
+      </div>
+
+      <div class="tl-item verde">
+        <div class="tl-card verde" onclick="toggleDetail(this)">
+          <div class="tl-date">Abril 2026 · Recurso federal</div>
+          <div class="tl-title">Ministración Federal — Conclusión Hospital Arantepacua</div>
+          <span class="tl-monto verde">$120 MDP — En trámite de pago</span>
+          <div class="tl-body">En abril de 2026 la UPP 017 recibió y amplió en presupuesto <strong>$120 MDP de origen federal</strong> destinados a la conclusión del <strong>Hospital de Arantepacua</strong>. Se inició el trámite de pago. Recurso vinculado a compromisos de infraestructura de salud del estado.</div>
+        </div>
+      </div>
+
+      <div class="tl-item dorado">
+        <div class="tl-card dorado" onclick="toggleDetail(this)">
+          <div class="tl-date">Abril 2026 · Esperado</div>
+          <div class="tl-title">Ministración IMSS Bienestar — Recurso federal pendiente</div>
+          <span class="tl-monto dorado">Monto por confirmar</span>
+          <div class="tl-body">La UPP señaló que en abril 2026 se esperaba la llegada del recurso federal de <strong>IMSS Bienestar</strong>. Con este recurso se reclasificarán los montos financieros en cuenta estatal para clarificar la trazabilidad del recurso de ambulancias. Al corte del 23 de abril, la ministración estaba aún pendiente de confirmación.</div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-card" onclick="toggleDetail(this)">
+          <div class="tl-date">23 Abril 2026 · Corte de información</div>
+          <div class="tl-title">Estado del ejercicio presupuestal al corte</div>
+          <span class="tl-monto">Presupuesto modificado $8,450.6 MDP</span>
+          <div class="tl-body">Al 23 de abril de 2026, el presupuesto original de <strong>$8,468.5 MDP</strong> registra un presupuesto modificado de <strong>$8,450.6 MDP</strong>, con una reducción neta de <strong>$17.9 MDP (-0.21%)</strong>. El estado del ejercicio comprende 1,431 registros en 6 fondos y tres centros gestores: Oficina del Secretario, Dirección de Salud Pública y Dirección de Servicios.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 2025 -->
+  <div id="tab-2025" class="tab-content">
+    <div class="timeline">
+      <div class="tl-item rojo">
+        <div class="tl-card rojo" onclick="toggleDetail(this)">
+          <div class="tl-date">2025 · Cierre</div>
+          <div class="tl-title">Provisionales sin regularizar — Fondo 09 y Fondo 02</div>
+          <span class="tl-monto rojo">$271.4 MDP</span>
+          <div class="tl-body">Fondo 09: $172.9 MDP · Fondo 02: $98.4 MDP. Pendientes al cierre del ejercicio 2025.</div>
+        </div>
+      </div>
+      <div class="tl-item rojo">
+        <div class="tl-card rojo" onclick="toggleDetail(this)">
+          <div class="tl-date">2025 · Ejercicio fiscal</div>
+          <div class="tl-title">Adeudos con Proveedores</div>
+          <span class="tl-monto rojo">~$400 MDP</span>
+          <div class="tl-body">Compromisos con terceros reportados por UPP 017 sin liquidar al cierre del año.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2026 -->
+  <div id="tab-2026" class="tab-content">
+    <div class="timeline">
+      <div class="tl-item verde">
+        <div class="tl-card verde" onclick="toggleDetail(this)">
+          <div class="tl-date">19 Ene 2026</div><div class="tl-title">S0078 — Q1 Servicios Personales</div>
+          <span class="tl-monto verde">$54.4 MDP — REGULARIZADO</span>
+          <div class="tl-body">Quincena 01. Regularizado el mismo día.</div>
+        </div>
+      </div>
+      <div class="tl-item verde">
+        <div class="tl-card verde" onclick="toggleDetail(this)">
+          <div class="tl-date">29 Ene 2026</div><div class="tl-title">S0155 — Q2 Servicios Personales</div>
+          <span class="tl-monto verde">$54.0 MDP — REGULARIZADO</span>
+          <div class="tl-body">Quincena 02. Regularizado el mismo día.</div>
+        </div>
+      </div>
+      <div class="tl-item verde">
+        <div class="tl-card verde" onclick="toggleDetail(this)">
+          <div class="tl-date">13 Feb 2026</div><div class="tl-title">S0191 — Q3 Servicios Personales</div>
+          <span class="tl-monto verde">$54.0 MDP — REGULARIZADO</span>
+          <div class="tl-body">Quincena 03. Regularizado el mismo día.</div>
+        </div>
+      </div>
+      <div class="tl-item verde">
+        <div class="tl-card verde" onclick="toggleDetail(this)">
+          <div class="tl-date">27 Feb 2026</div><div class="tl-title">S0222 — Q4 Servicios Personales</div>
+          <span class="tl-monto verde">$63.5 MDP — REGULARIZADO</span>
+          <div class="tl-body">Quincena 04. Cierre de regularización Q1–Q4 acumulado: $225.9 MDP.</div>
+        </div>
+      </div>
+      <div class="tl-item dorado">
+        <div class="tl-card dorado" onclick="toggleDetail(this)">
+          <div class="tl-date">18 Mar 2026</div><div class="tl-title">DEPPs 155–158 — Ambulancias</div>
+          <span class="tl-monto dorado">$178.1 MDP</span>
+          <div class="tl-body">4 DEPPs emitidos para regularización presupuestal del recurso de ambulancias.</div>
+        </div>
+      </div>
+      <div class="tl-item verde">
+        <div class="tl-card verde" onclick="toggleDetail(this)">
+          <div class="tl-date">Abr 2026</div><div class="tl-title">Hospital Arantepacua — Federal</div>
+          <span class="tl-monto verde">$120 MDP</span>
+          <div class="tl-body">Recurso ministrado. En proceso de pago para conclusión del hospital.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PENDIENTES -->
+  <div id="tab-pend" class="tab-content">
+    <div class="timeline">
+      <div class="tl-item rojo">
+        <div class="tl-card rojo" onclick="toggleDetail(this)">
+          <div class="tl-date">Pendiente</div><div class="tl-title">Adeudos con Proveedores 2025</div>
+          <span class="tl-monto rojo">~$400 MDP sin liquidar</span>
+          <div class="tl-body">No se reporta inicio de pago al corte del 23 de abril de 2026.</div>
+        </div>
+      </div>
+      <div class="tl-item dorado">
+        <div class="tl-card dorado" onclick="toggleDetail(this)">
+          <div class="tl-date">Pendiente</div><div class="tl-title">Provisionales 2025 (Fondo 09 + Fondo 02)</div>
+          <span class="tl-monto dorado">$271.4 MDP</span>
+          <div class="tl-body">Transitaron al ejercicio 2026 sin regularizarse en 2025.</div>
+        </div>
+      </div>
+      <div class="tl-item dorado">
+        <div class="tl-card dorado" onclick="toggleDetail(this)">
+          <div class="tl-date">Pendiente</div><div class="tl-title">Provisionales 2026 — Fondo 02</div>
+          <span class="tl-monto dorado">$107.8 MDP</span>
+          <div class="tl-body">Provisionales generados en 2026 aún no regularizados.</div>
+        </div>
+      </div>
+      <div class="tl-item dorado">
+        <div class="tl-card dorado" onclick="toggleDetail(this)">
+          <div class="tl-date">Esperado — Abr 2026</div><div class="tl-title">Ministración IMSS Bienestar</div>
+          <span class="tl-monto dorado">Monto por confirmar</span>
+          <div class="tl-body">Recurso federal para reclasificar el recurso de ambulancias y completar trazabilidad.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ TABLAS QUINCENAS ══ -->
+<section id="quincenas">
+  <div class="section-title">Transferencias Provisionales — Quincenas 2026
+    <small>Servicios Personales · Fondo 261101021</small>
+  </div>
+  <div class="tabla-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Folio</th><th>Fecha</th><th>Quincena</th>
+          <th>Monto (MXN)</th><th>Regularizado</th><th>Saldo</th><th>Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>S0078</strong></td><td>19/01/2026</td><td>Q1</td>
+          <td class="monto">$54,413,673.67</td>
+          <td class="monto" style="color:var(--verde)">-$54,413,673.67</td>
+          <td class="monto">$0.00</td>
+          <td><span class="tag reg">Regularizado</span></td>
+        </tr>
+        <tr>
+          <td><strong>S0155</strong></td><td>29/01/2026</td><td>Q2</td>
+          <td class="monto">$53,974,072.99</td>
+          <td class="monto" style="color:var(--verde)">-$53,974,072.99</td>
+          <td class="monto">$0.00</td>
+          <td><span class="tag reg">Regularizado</span></td>
+        </tr>
+        <tr>
+          <td><strong>S0191</strong></td><td>13/02/2026</td><td>Q3</td>
+          <td class="monto">$54,044,529.09</td>
+          <td class="monto" style="color:var(--verde)">-$54,044,529.09</td>
+          <td class="monto">$0.00</td>
+          <td><span class="tag reg">Regularizado</span></td>
+        </tr>
+        <tr>
+          <td><strong>S0222</strong></td><td>27/02/2026</td><td>Q4</td>
+          <td class="monto">$63,461,624.13</td>
+          <td class="monto" style="color:var(--verde)">-$63,461,624.13</td>
+          <td class="monto">$0.00</td>
+          <td><span class="tag reg">Regularizado</span></td>
+        </tr>
+        <tr style="background:var(--rosa); font-weight:800;">
+          <td colspan="3"><strong>TOTAL Q1–Q4</strong></td>
+          <td class="monto">$225,893,899.88</td>
+          <td class="monto" style="color:var(--verde)">-$225,893,899.88</td>
+          <td class="monto">$0.00</td>
+          <td><span class="tag reg">100% Reg.</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title" style="margin-top:2rem">DEPPs — Regularización Ambulancias
+    <small>18 Marzo 2026 · Posición Presupuestal 421051</small>
+  </div>
+  <div class="tabla-wrap">
+    <table>
+      <thead>
+        <tr><th>Folio DEPP</th><th>Fecha</th><th>Monto (MXN)</th><th>Aplicación</th><th>Estado</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>0170000000155</td><td>18/03/2026</td>
+          <td class="monto">$42,461,388.67</td>
+          <td>Regularización provisional Serv. Personales</td>
+          <td><span class="tag reg">Regularizado</span></td>
+        </tr>
+        <tr>
+          <td>0170000000156</td><td>18/03/2026</td>
+          <td class="monto">$42,021,787.99</td>
+          <td>Regularización provisional Serv. Personales</td>
+          <td><span class="tag reg">Regularizado</span></td>
+        </tr>
+        <tr>
+          <td>0170000000157</td><td>18/03/2026</td>
+          <td class="monto">$42,092,244.09</td>
+          <td>Regularización provisional Serv. Personales</td>
+          <td><span class="tag reg">Regularizado</span></td>
+        </tr>
+        <tr>
+          <td>0170000000158</td><td>18/03/2026</td>
+          <td class="monto">$51,509,339.13</td>
+          <td>Regularización provisional Serv. Personales</td>
+          <td><span class="tag reg">Regularizado</span></td>
+        </tr>
+        <tr>
+          <td colspan="2"><em>Remanente · Abr 2026</em></td>
+          <td class="monto">$1,915,240.12</td>
+          <td>Complemento recurso ambulancias</td>
+          <td><span class="tag proc">En proceso</span></td>
+        </tr>
+        <tr style="background:var(--rosa); font-weight:800;">
+          <td colspan="2"><strong>TOTAL DEPPs</strong></td>
+          <td class="monto">$178,084,759.88</td>
+          <td></td>
+          <td><span class="tag reg">Regularizado</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ══ PRESUPUESTO BARRAS ══ -->
+<section id="presupuesto">
+  <div class="section-title">Estado del Presupuesto 2026
+    <small>Comparativo original vs. modificado y distribución de obligaciones</small>
+  </div>
+  <div class="bar-section">
+    <div class="bar-row">
+      <div class="bar-label"><span class="bl-n">Presupuesto Original 2026</span><span class="bl-v">$8,468.5 MDP</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--guinda)"></div></div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label"><span class="bl-n">Presupuesto Modificado 2026</span><span class="bl-v">$8,450.6 MDP</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:99.79%;background:var(--guinda-lt)"></div></div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label"><span class="bl-n">Provisionales Pendientes 2025</span><span class="bl-v" style="color:var(--rojo)">$271.4 MDP</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:3.2%;background:var(--rojo)"></div></div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label"><span class="bl-n">Adeudos con Proveedores 2025</span><span class="bl-v" style="color:var(--rojo)">~$400 MDP</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:4.7%;background:#e74c3c"></div></div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label"><span class="bl-n">Regularizado Quincenas Q1–Q4</span><span class="bl-v" style="color:var(--verde)">$225.9 MDP</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:2.67%;background:var(--verde)"></div></div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label"><span class="bl-n">Recurso Ambulancias (DEPPs)</span><span class="bl-v" style="color:var(--amarillo)">$178.1 MDP</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:2.1%;background:var(--dorado)"></div></div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label"><span class="bl-n">Hospital Arantepacua (Federal)</span><span class="bl-v" style="color:var(--verde)">$120 MDP</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:1.42%;background:#27ae60"></div></div>
+    </div>
+    <p style="font-size:.74rem;color:#aaa;text-align:center;margin-top:1rem">* Deudas y regularizaciones en proporción al presupuesto original de $8,468.5 MDP.</p>
+  </div>
+</section>
+
+<!-- ══ FLUJO ══ -->
+<section id="flujo">
+  <div class="section-title">Flujo del Recurso de Ambulancias 2026
+    <small>Movimiento temporal del recurso presupuestal y su regularización</small>
+  </div>
+  <div class="flujo-wrap">
+    <div class="flujo-card" style="border-top-color:var(--guinda)">
+      <div class="fc-icon">💰</div>
+      <div class="fc-label">Asignación inicial</div>
+      <div class="fc-val">$180 MDP</div>
+      <div style="font-size:.71rem;color:#888;margin-top:.3rem">Pos. 421051 · Ene 2026</div>
+    </div>
+    <div class="flujo-arrow">→</div>
+    <div class="flujo-card" style="border-top-color:var(--rojo)">
+      <div class="fc-icon">🔄</div>
+      <div class="fc-label">Aplicado a nómina</div>
+      <div class="fc-val" style="color:var(--rojo)">$178 MDP</div>
+      <div style="font-size:.71rem;color:#888;margin-top:.3rem">Provisional temporal Q1–Q4</div>
+    </div>
+    <div class="flujo-arrow">→</div>
+    <div class="flujo-card" style="border-top-color:var(--dorado)">
+      <div class="fc-icon">📄</div>
+      <div class="fc-label">DEPPs emitidos</div>
+      <div class="fc-val" style="color:var(--amarillo)">$178.1 MDP</div>
+      <div style="font-size:.71rem;color:#888;margin-top:.3rem">4 DEPPs · 18 Mar 2026</div>
+    </div>
+    <div class="flujo-arrow">→</div>
+    <div class="flujo-card" style="border-top-color:var(--verde)">
+      <div class="fc-icon">✅</div>
+      <div class="fc-label">Regularizado</div>
+      <div class="fc-val" style="color:var(--verde)">$180 MDP</div>
+      <div style="font-size:.71rem;color:#888;margin-top:.3rem">+$1.9 MDP en Abr 2026</div>
+    </div>
+  </div>
+
+  <!-- CAJA RESUMEN TOTAL -->
+  <div class="total-box">
+    <div class="tb-item">
+      <div class="tb-label">Obligaciones Pendientes</div>
+      <div class="tb-val">~$779 MDP</div>
+      <div class="tb-sub">$271.4M prov. 2025 · ~$400M prov. · $107.8M prov. 2026</div>
+    </div>
+    <div class="tb-div"></div>
+    <div class="tb-item">
+      <div class="tb-label">Regularizado en 2026</div>
+      <div class="tb-val">$404 MDP</div>
+      <div class="tb-sub">$225.9M nómina · $178.1M ambulancias · $120M Hospital (trámite)</div>
+    </div>
+    <div class="tb-div"></div>
+    <div class="tb-item">
+      <div class="tb-label">Presupuesto Modificado</div>
+      <div class="tb-val">$8,451 MDP</div>
+      <div class="tb-sub">-$17.9 MDP vs. original (-0.21%)</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <div class="footer-inner">
+    <img src="https://michoacan.gob.mx/images/logo-gris.png"
+         alt="Michoacán es Mejor" onerror="this.style.display='none'">
+    <div class="ft-text">
+      <strong>Servicios de Salud de Michoacán — UPP 017</strong><br>
+      Gobierno del Estado de Michoacán de Ocampo<br>
+      Corte de información: 23 de Abril de 2026 · Fuente: Estado del Ejercicio · Resumen Salud 2025–2026 · Manual PEGEM 2025
+    </div>
+    <img src="https://michoacan.gob.mx/cdn/img/logos/dependencias/finanzas.svg"
+         alt="Secretaría de Finanzas" onerror="this.style.display='none'">
+  </div>
+</footer>
+
+<script>
+  function showTab(id, btn) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    if (btn) btn.classList.add('active');
+  }
+
+  function toggleDetail(card) {
+    const body = card.querySelector('.tl-body');
+    if (!body) return;
+    const open = body.style.display === 'block';
+    document.querySelectorAll('.tl-body').forEach(b => b.style.display = 'none');
+    if (!open) body.style.display = 'block';
+  }
+
+  function scrollTo(id) {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // Animación de barras al hacer scroll
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.querySelectorAll('.bar-fill').forEach(b => {
+          const w = b.style.width;
+          b.style.width = '0';
+          setTimeout(() => b.style.width = w, 120);
+        });
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.2 });
+  document.querySelectorAll('.bar-section').forEach(s => observer.observe(s));
+
+  // Nav activo al hacer scroll
+  const secs = ['resumen','adeudos','cronologia','quincenas','presupuesto','flujo'];
+  window.addEventListener('scroll', () => {
+    let cur = '';
+    secs.forEach(id => {
+      const el = document.getElementById(id);
+      if (el && window.scrollY >= el.offsetTop - 120) cur = id;
+    });
+    document.querySelectorAll('nav ul li a').forEach(a => {
+      a.classList.remove('active');
+      if (a.getAttribute('href') === '#' + cur) a.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
